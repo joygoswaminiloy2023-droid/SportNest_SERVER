@@ -30,11 +30,33 @@ const client = new MongoClient(uri, {
     deprecationErrors: true,
   }
 });
+
+app.get('/',(req,res)=>{
+    res.send("Server Is Running Fine")
+})
+
+
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
 
+const db= client.db('sportnest')
+const db_col=db.collection('facilities_data')
+// const db_col_2=db.collection('bookings')
+
+app.post('/facility',async (req,res)=>{
+    const facilityData=req.body
+    const result=await db_col.insertOne(facilityData)
+
+    res.send(result)
+})
+
+app.get('/facility',async (req,res)=>{
+    const result=await db_col.find().toArray();
+    res.send(result)
+    
+})
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
@@ -44,6 +66,3 @@ async function run() {
 }
 run().catch(console.dir);
 
-app.get('/',(req,res)=>{
-    res.send("Server Is Running Fine")
-})

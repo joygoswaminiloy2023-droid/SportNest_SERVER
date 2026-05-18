@@ -57,6 +57,12 @@ app.get('/facility',async (req,res)=>{
     res.send(result)
     
 })
+
+app.get('/facility/:id',async(req,res)=>{
+  const {id}=req.params
+  const result= await db_col.findOne({_id:new ObjectId(id)})
+  res.send(result)
+})
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {

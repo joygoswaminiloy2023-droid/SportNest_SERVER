@@ -73,6 +73,15 @@ app.post('/bookings',async (req,res)=>{
     res.send(result)
 })
 
+
+app.get('/bookings/:userId', async(req,res)=>{
+  const {userId}=req.params
+
+  
+  const result= await db_col_2.find({user_id:userId}).toArray()
+  res.send(result)
+})
+
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {

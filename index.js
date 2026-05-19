@@ -55,17 +55,46 @@ app.post('/facility',async (req,res)=>{
 
 
 app.get("/facility", async (req, res) => {
-  const ownerEmail = req.query.ownerEmail;
+  try {
 
-  let query = {};
+    const { search, sport } = req.query;
 
-  if (ownerEmail) {
-    query = { ownerEmail };
+
+    let query = {};
+
+    
+    if (search) {
+      query.facilityName = {
+        $regex: search,
+        $options: "i", 
+      };
+    }
+
+   
+    if (sport && sport !== "All Facilities") {
+
+    
+      const sportFilter = Array.isArray(sport)
+        ? sport
+        : [sport];
+
+      query.facilityType = {
+        $in: sportFilter,
+      };
+    }
+
+
+    const result = await db_col.find(query).toArray();
+
+  
+    res.send(result);
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({
+      message: "Internal Server Error",
+    });
   }
-
-  const result = await db_col.find(query).toArray();
-
-  res.send(result);
 });
 
 app.get('/facility/:id',async(req,res)=>{

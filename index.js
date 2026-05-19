@@ -52,11 +52,21 @@ app.post('/facility',async (req,res)=>{
     res.send(result)
 })
 
-app.get('/facility',async (req,res)=>{
-    const result=await db_col.find().toArray();
-    res.send(result)
-    
-})
+
+
+app.get("/facility", async (req, res) => {
+  const ownerEmail = req.query.ownerEmail;
+
+  let query = {};
+
+  if (ownerEmail) {
+    query = { ownerEmail };
+  }
+
+  const result = await db_col.find(query).toArray();
+
+  res.send(result);
+});
 
 app.get('/facility/:id',async(req,res)=>{
   const {id}=req.params
@@ -64,6 +74,16 @@ app.get('/facility/:id',async(req,res)=>{
   res.send(result)
 })
 
+
+app.delete("/facility/:id", async (req, res) => {
+  const id = req.params.id;
+
+  const result = await db_col.deleteOne({
+    _id: new ObjectId(id),
+  });
+
+  res.send(result);
+});
 
 // for my Bookings
 

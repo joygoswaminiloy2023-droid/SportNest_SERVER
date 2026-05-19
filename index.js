@@ -5,6 +5,7 @@ dotenv.config();
 const express=require('express')
 
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const { createRemoteJWKSet, jwtVerify } = require('jose-cjs');
 const Port=process.env.PORT;
 const app=express();
 app.use(cors())
@@ -31,6 +32,38 @@ const client = new MongoClient(uri, {
   }
 });
 
+  const JWKS = createRemoteJWKSet(
+      new URL(`${process.env.CLIENT_URL}/api/auth/jwks`)
+    )
+
+
+const verify=async (req,res,next)=>{
+  const header= req?.headers.authorization;
+  if(!header){
+    return res.status(401).json({message: "Unauthorized"})
+  }
+  const token=header.split(" ")[1]
+
+  
+
+  if (!token) {
+    console.log("Invalid scheme or empty token");
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+
+  try{
+  const { payload } = await jwtVerify(token, JWKS)
+  next();
+  }
+  catch(error){
+    console.error("JWT Verification failed Error Details:", error.message);
+    return res.status(403).json({message: "Forbidden"})
+  }
+}
+
+
+
 app.get('/',(req,res)=>{
     res.send("Server Is Running Fine")
 })
@@ -54,7 +87,7 @@ app.post('/facility',async (req,res)=>{
 
 
 
-app.get("/facility", async (req, res) => {
+app.get("/facility",async (req, res) => {
   try {
 
     const { search, sport } = req.query;
@@ -97,7 +130,7 @@ app.get("/facility", async (req, res) => {
   }
 });
 
-app.get('/facility/:id',async(req,res)=>{
+app.get('/facility/:id',verify,async(req,res)=>{
   const {id}=req.params
   const result= await db_col.findOne({_id:new ObjectId(id)})
   res.send(result)
@@ -115,7 +148,7 @@ app.patch("/facility/:id", async (req, res) => {
   res.send(result);
 });
 
-app.delete("/facility/:id", async (req, res) => {
+app.delete("/facility/:id",verify,async (req, res) => {
   const id = req.params.id;
 
   const result = await db_col.deleteOne({
@@ -127,14 +160,14 @@ app.delete("/facility/:id", async (req, res) => {
 
 // for my Bookings
 
-app.post('/bookings',async (req,res)=>{
+app.post('/bookings',verify,async (req,res)=>{
     const bookingData=req.body
     const result=await db_col_2.insertOne(bookingData)
     res.send(result)
 })
 
 
-app.get('/bookings/:userId', async(req,res)=>{
+app.get('/bookings/:userId',verify,async(req,res)=>{
   const {userId}=req.params
 
   
@@ -143,7 +176,7 @@ app.get('/bookings/:userId', async(req,res)=>{
 })
 
 
-app.delete('/bookings/:bookingId',async(req,res)=>{
+app.delete('/bookings/:bookingId',verify,async(req,res)=>{
   const {bookingId}=req.params;
   const result=await db_col_2.deleteOne({_id: new ObjectId(bookingId)})
   res.send(result)

@@ -74,6 +74,17 @@ app.get('/facility/:id',async(req,res)=>{
   res.send(result)
 })
 
+app.patch("/facility/:id", async (req, res) => {
+  const id = req.params.id;
+  const updatedData = req.body;
+
+  const result = await db_col.updateOne(
+    { _id: new ObjectId(id) },
+    { $set: updatedData }
+  );
+
+  res.send(result);
+});
 
 app.delete("/facility/:id", async (req, res) => {
   const id = req.params.id;

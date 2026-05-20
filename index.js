@@ -87,11 +87,9 @@ app.post('/facility',async (req,res)=>{
 
 
 
-app.get("/facility",async (req, res) => {
+app.get("/facility", async (req, res) => {
   try {
-
-    const { search, sport } = req.query;
-
+    const { search, sport, ownerEmail } = req.query;
 
     let query = {};
 
@@ -99,14 +97,12 @@ app.get("/facility",async (req, res) => {
     if (search) {
       query.facilityName = {
         $regex: search,
-        $options: "i", 
+        $options: "i",
       };
     }
 
-   
+  
     if (sport && sport !== "All Facilities") {
-
-    
       const sportFilter = Array.isArray(sport)
         ? sport
         : [sport];
@@ -116,14 +112,18 @@ app.get("/facility",async (req, res) => {
       };
     }
 
+  
+    if (ownerEmail) {
+      query.ownerEmail = ownerEmail;
+    }
 
     const result = await db_col.find(query).toArray();
 
-  
     res.send(result);
 
   } catch (error) {
     console.error(error);
+
     res.status(500).send({
       message: "Internal Server Error",
     });

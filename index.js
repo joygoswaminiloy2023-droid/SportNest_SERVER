@@ -72,7 +72,7 @@ app.get('/',(req,res)=>{
 async function run() {
   try {
 
-    await client.connect();
+    // await client.connect();
 
 const db= client.db('sportnest')
 const db_col=db.collection('facilities_data')
@@ -181,7 +181,7 @@ app.delete('/bookings/:bookingId',verify,async(req,res)=>{
   const result=await db_col_2.deleteOne({_id: new ObjectId(bookingId)})
   res.send(result)
 })
-    await client.db("admin").command({ ping: 1 });
+    // await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error

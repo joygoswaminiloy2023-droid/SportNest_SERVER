@@ -136,7 +136,7 @@ app.get('/facility/:id',verify,async(req,res)=>{
   res.send(result)
 })
 
-app.patch("/facility/:id", async (req, res) => {
+app.patch("/facility/:id",verify,async (req, res) => {
   const id = req.params.id;
   const updatedData = req.body;
 
